@@ -31,17 +31,38 @@ pip install nuscenes-devkit tensorboardX efficientnet_pytorch==0.7.0
 ```
 
 ### Pre-trained Model
+
+Download Weights with gdown 
+```
+gdown 18fy-6beTFTZx5SrYLs9Xk7cY-fGSm7kw
+```
 Download a pre-trained BEV vehicle segmentation model from here: [https://drive.google.com/file/d/18fy-6beTFTZx5SrYLs9Xk7cY-fGSm7kw/view?usp=sharing](https://drive.google.com/file/d/18fy-6beTFTZx5SrYLs9Xk7cY-fGSm7kw/view?usp=sharing)
 
 | Vehicle IOU (reported in paper)        | Vehicle IOU (this repository)         |
 |:-------------:|:-------------:| 
 | 32.07      | 33.03 |
 
+### Download Nuscenes mini
+
+```
+!mkdir -p /content/nuscenes  # Make the directory to store the nuScenes dataset in.
+
+!wget https://www.nuscenes.org/data/v1.0-mini.tgz  # Download the nuScenes mini split.
+
+!tar -xf v1.0-mini.tgz -C /content/nuscenes  # Uncompress the nuScenes mini split.
+```
+
 ### Evaluate a model
 Evaluate the IOU of a model on the nuScenes validation set. To evaluate on the "mini" split, pass `mini`. To evaluate on the "trainval" split, pass `trainval`.
 
 ```
 python main.py eval_model_iou mini/trainval --modelf=MODEL_LOCATION --dataroot=NUSCENES_ROOT
+```
+
+OR
+
+```
+python main.py eval_model_iou mini --gpuid=0 --modelf=/content/lift-splat-shoot/model525000.pt --dataroot=/content/nuscenes
 ```
 
 ### Visualize Predictions
