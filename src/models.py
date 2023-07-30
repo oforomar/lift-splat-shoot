@@ -49,12 +49,21 @@ class CamEncode(nn.Module):
         return x.softmax(dim=1)
 
     def get_depth_feat(self, x):
+        print(f'og x shape : {x.shape}')
+
         x = self.get_eff_depth(x)
+
+        print(f'eff x shape : {x.shape}')
+
         # Depth
         x = self.depthnet(x)
 
+        print(f'depthnet x shape : {x.shape}')
+
         depth = self.get_depth_dist(x[:, :self.D])
         new_x = depth.unsqueeze(1) * x[:, self.D:(self.D + self.C)].unsqueeze(2)
+
+        print(f'new x shape : {x.shape}')
 
         return depth, new_x
 
