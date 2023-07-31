@@ -177,39 +177,29 @@ class LiftSplatShoot(nn.Module):
         of the points in the point cloud.
         Returns B x N x D x H/downsample x W/downsample x 3
         """
-        print(f"[get_geometry: trans.shape {trans.shape}]")
-        # print(f"[get_geometry: trans {trans.shape}]")
         B, N, _ = trans.shape
 
-        # undo post-transformation
+        # undo post-transformation (applied in augmentation step)
         # B x N x D x H x W x 3
         
-        print(f"[get_geometry: post_trans {post_trans.shape}]")
-
         points = self.frustum - post_trans.view(B, N, 1, 1, 1, 3)
-
-        print(f"[get_geometry: points - post_trans {points.shape}]")
-
         points = torch.inverse(post_rots).view(B, N, 1, 1, 1, 3, 3).matmul(points.unsqueeze(-1))
 
-        print(f"[get_geometry: post_rots {post_rots.shape}]")
-        print(f"[get_geometry: inv_rots * points {points.shape}]")
-
         # cam_to_ego
+
+        # 1. Multipy width & height by depth (in meters) [Image -> Cam]
+        # 1.5. Concate depth
+
         points = torch.cat((points[:, :, :, :, :, :2] * points[:, :, :, :, :, 2:3],
                             points[:, :, :, :, :, 2:3]
                             ), 5)
-        print(f"[get_geometry: points_cat {points.shape}]")
-        
+
+        # 2. Multiply the width & height by inv intrinsics [Pixel -> Image]
+        # 3. and multiply by extrinsics [Cam -> World]
+
         combine = rots.matmul(torch.inverse(intrins))
-
-        print(f"[get_geometry: combine {combine.shape}]")
-
         points = combine.view(B, N, 1, 1, 1, 3, 3).matmul(points).squeeze(-1)
-        print(f"[get_geometry: points*combine {points.shape}]")
-
         points += trans.view(B, N, 1, 1, 1, 3)
-        print(f"[get_geometry: points+trans {points.shape}]")
 
         return points
 
