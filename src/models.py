@@ -121,16 +121,28 @@ class BevEncode(nn.Module):
         )
 
     def forward(self, x):
+        print(f'[BEV Decoder]: input: {x.shape=}')
         x = self.conv1(x)
         x = self.bn1(x)
         x = self.relu(x)
+        print(f'[BEV Decoder]: conv1: {x.shape=}')
 
         x1 = self.layer1(x)
+        print(f'[BEV Decoder]: layer1: {x1.shape=}')
+
         x = self.layer2(x1)
+        print(f'[BEV Decoder]: layer2: {x.shape=}')
+
         x = self.layer3(x)
+        print(f'[BEV Decoder]: layer3: {x.shape=}')
+
 
         x = self.up1(x, x1)
+        print(f'[BEV Decoder]: Up1: {x.shape=}')
+
         x = self.up2(x)
+        print(f'[BEV Decoder]: Up2: {x.shape=}')
+
 
         return x
 
